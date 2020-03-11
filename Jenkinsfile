@@ -58,7 +58,7 @@ pipeline {
 
         stage('Start the application'){
             steps {
-                sh 'ssh -o StrictHostKeyChecking=no nhristov@10.10.10.57 "docker run --name auth-service --network=wp-network -p 9100:9100 -d nikolancaid/auth-service:latest"'
+                sh 'ssh -o StrictHostKeyChecking=no nhristov@10.10.10.57 "docker run --name auth-service --network=host -d nikolancaid/auth-service:latest"'
             }
         }
     }
