@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    // We use auth manager to validate the user credentials
+    // We use hristovski.nikola.auth manager to validate the user credentials
     private final AuthenticationManager authManager;
 
     private final JwtConfig jwtConfig;
@@ -37,7 +37,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
         this.jwtConfig = jwtConfig;
 
         // By default, UsernamePasswordAuthenticationFilter listens to "/login" path.
-        // In our case, we use "/auth". So, we need to override the defaults.
+        // In our case, we use "/hristovski.nikola.auth". So, we need to override the defaults.
         this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtConfig.getUri(), "POST"));
 
     }
@@ -53,7 +53,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
             UserCredentials creds = new ObjectMapper().readValue(request.getInputStream(), UserCredentials.class);
 
             log.info("Credentials: " + creds);
-            // 2. Create auth object (contains credentials) which will be used by auth manager
+            // 2. Create hristovski.nikola.auth object (contains credentials) which will be used by hristovski.nikola.auth manager
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     creds.getUsername(), creds.getPassword(), Collections.emptyList());
 
@@ -70,7 +70,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     }
 
     // Upon successful authentication, generate a token.
-    // The 'auth' passed to successfulAuthentication() is the current authenticated user.
+    // The 'hristovski.nikola.auth' passed to successfulAuthentication() is the current authenticated user.
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
@@ -87,7 +87,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
                 .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes())
                 .compact();
 
-        log.info("auth successful, token: {}",token);
+        log.info("hristovski.nikola.auth successful, token: {}",token);
         // Add token to header
         response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + token);
     }
