@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,7 +53,6 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
             // 1. Get credentials from request
             UserCredentials creds = new ObjectMapper().readValue(request.getInputStream(), UserCredentials.class);
 
-            log.info("Credentials: " + creds);
             // 2. Create hristovski.nikola.auth object (contains credentials) which will be used by hristovski.nikola.auth manager
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     creds.getUsername(), creds.getPassword(), Collections.emptyList());
@@ -76,12 +76,15 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
                                             Authentication auth) throws IOException, ServletException {
 
         Long now = System.currentTimeMillis();
+
+        List<String> authorities = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+
         String token = Jwts.builder()
                 .setSubject(auth.getName())
                 // Convert to list of strings.
                 // This is important because it affects the way we get them back in the Gateway.
-                .claim("authorities", auth.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .claim("authorities", authorities)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + jwtConfig.getExpiration() * 1000))  // in milliseconds
                 .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes())
@@ -90,6 +93,9 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
         log.info("hristovski.nikola.auth successful, token: {}",token);
         // Add token to header
         response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + token);
+
+        log.info("Adding roles: {}", authorities.toString());
+        response.addHeader("roles", authorities.toString());
     }
 
     @Getter

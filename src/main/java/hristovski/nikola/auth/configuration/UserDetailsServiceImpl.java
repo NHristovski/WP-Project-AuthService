@@ -28,6 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         try {
             InstanceInfo instanceInfo = discoveryClient.getNextServerFromEureka(SERVICE, false);
+            log.info("The next server is: {}",instanceInfo.getHomePageUrl());
 
             String url = instanceInfo.getHomePageUrl() + username;
 
